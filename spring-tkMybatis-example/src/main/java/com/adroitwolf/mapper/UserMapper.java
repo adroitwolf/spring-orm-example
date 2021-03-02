@@ -1,9 +1,7 @@
 package com.adroitwolf.mapper;
 
 import com.adroitwolf.model.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
+import tk.mybatis.mapper.common.Mapper;
 
 /**
  * @author adroitwolf
@@ -12,9 +10,8 @@ import java.util.Optional;
  * @Description 用户DAO接口
  * @createTime 2021年03月01日 08:56:00
  */
-public interface UserRepository extends JpaRepository<User,Integer> {
+public interface UserMapper extends Mapper<User> {
 
-    Optional<User> findUserByUsername(String username);
 
 
 }

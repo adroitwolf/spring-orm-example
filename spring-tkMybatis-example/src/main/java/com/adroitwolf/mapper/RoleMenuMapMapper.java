@@ -1,9 +1,8 @@
 package com.adroitwolf.mapper;
 
 import com.adroitwolf.model.entity.RoleMenuMap;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import tk.mybatis.mapper.common.Mapper;
 
-import java.util.List;
 
 /**
  * @author adroitwolf
@@ -12,10 +11,7 @@ import java.util.List;
  * @Description 角色-菜单关联 DAO
  * @createTime 2021年03月01日 14:21:00
  */
-public interface RoleMenuMapMapper extends BaseMapper<RoleMenuMap> {
-
-    List<RoleMenuMap> findRoleMenuMapsByRoleId(Integer roleId);
-
+public interface RoleMenuMapMapper extends Mapper<RoleMenuMap> {
 
 
 }

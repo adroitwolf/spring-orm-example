@@ -1,19 +1,18 @@
 package com.adroitwolf.service.impl;
 
+
+import com.adroitwolf.mapper.MenuMapper;
+import com.adroitwolf.mapper.RoleMenuMapMapper;
 import com.adroitwolf.model.entity.Menu;
 import com.adroitwolf.model.entity.RoleMenuMap;
 import com.adroitwolf.model.vo.MenuVo;
 import com.adroitwolf.model.vo.RoleMenuMapVo;
 import com.adroitwolf.model.vo.RoleMenuVo;
-import com.adroitwolf.mapper.MenuMapper;
-import com.adroitwolf.mapper.RoleMenuMapMapper;
 import com.adroitwolf.service.MenuService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Wrapper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,17 +53,23 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public List<Menu> getAllMenus() {
-        return menuMapper.selectList(new QueryWrapper<>());
+
+        return menuMapper.selectAll();
     }
 
     @Override
     public List<RoleMenuMapVo> getAllMenuMapByRoleId(Integer roleId) {
         //先获取所有菜单
-        List<Menu> menus = menuMapper.selectList(new QueryWrapper<>());
+        List<Menu> menus = menuMapper.selectAll();
+
+        System.out.println(menus);
         // 获取所有该角色应该有的菜单
-        QueryWrapper<RoleMenuMap> wrapper = new QueryWrapper<>();
-        wrapper.eq("role_id",roleId);
-        List<Integer> menusId = roleMenuMapMapper.selectList(wrapper).stream().map(RoleMenuMap::getMenuId).collect(Collectors.toList());
+
+
+        RoleMenuMap roleMenuMap = new RoleMenuMap();
+        roleMenuMap.setRoleId(roleId);
+
+        List<Integer> menusId = roleMenuMapMapper.select(roleMenuMap).stream().map(RoleMenuMap::getMenuId).collect(Collectors.toList());
 
 
         List<RoleMenuVo> lists = menus.stream().map(item->{
@@ -74,13 +79,16 @@ public class MenuServiceImpl implements MenuService {
             return roleMenuVo;
         }).collect(Collectors.toList());
 
+
+
         return adjustMenuMap(lists);
     }
 
     @Override
     public void saveMenusMapByRoleId(List<Integer> menus,Integer roleId) {
-        QueryWrapper<RoleMenuMap> wrapper = new QueryWrapper<>();
-        wrapper.eq("role_id",roleId);
+
+        RoleMenuMap wrapper = new RoleMenuMap();
+        wrapper.setRoleId(roleId);
         roleMenuMapMapper.delete(wrapper); //先删除
 
 
@@ -92,6 +100,7 @@ public class MenuServiceImpl implements MenuService {
             // mp的mapper接口不支持批量插入
             roleMenuMapMapper.insert(roleMenuMap);
         });
+
 
 
     }

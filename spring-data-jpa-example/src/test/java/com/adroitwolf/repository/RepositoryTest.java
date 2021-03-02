@@ -1,7 +1,7 @@
-package com.adroitwolf;
+package com.adroitwolf.repository;
 
 import com.adroitwolf.model.entity.Role;
-import com.adroitwolf.mapper.Rolerepository;
+import com.adroitwolf.mapper.RoleRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +19,9 @@ import java.util.List;
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class repositoryTest {
+public class RepositoryTest {
     @Autowired
-    Rolerepository repository;
+    RoleRepository repository;
     @Test
     public void RoleTest(){
         List<Role> roles = repository.findAllByUserId(1);

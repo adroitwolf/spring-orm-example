@@ -1,23 +1,26 @@
 package com.adroitwolf.service.impl;
 
+
+import com.adroitwolf.mapper.RoleMapper;
+import com.adroitwolf.mapper.RoleUserMapMapper;
+import com.adroitwolf.mapper.UserMapper;
+import com.adroitwolf.model.dto.DataGrid;
 import com.adroitwolf.model.entity.Role;
+import com.adroitwolf.model.entity.RoleMenuMap;
 import com.adroitwolf.model.entity.RoleUserMap;
 import com.adroitwolf.model.entity.User;
 import com.adroitwolf.model.vo.UserDetails;
 import com.adroitwolf.model.vo.UserRoleMapVo;
-import com.adroitwolf.mapper.RoleRepository;
-import com.adroitwolf.mapper.RoleUserMapRepository;
-import com.adroitwolf.mapper.UserRepository;
 import com.adroitwolf.service.UserService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -31,44 +34,61 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    UserRepository userRepository;
+    UserMapper userMapper;
 
     @Autowired
-    RoleRepository roleRepository;
+    RoleMapper roleMapper;
 
     @Autowired
-    RoleUserMapRepository roleUserMaprepository;
+    RoleUserMapMapper roleUserMapMapper;
 
     @Override
     public UserDetails loginByUsername(String username, String password) {
-        Optional<User> user = userRepository.findUserByUsername(username);
+
+
+        User wrapper = new User();
+        wrapper.setUsername(username);
+        User user = userMapper.selectOne(wrapper);
+
+        Assert.notNull(user,"未找到该用户");
+
 
         UserDetails details = new UserDetails();
-        if(!user.isPresent() || !user.get().getPassword().equals(password) ){ // 空则直接返回
+
+        if(!user.getPassword().equals(password)){
             return details;
         }
 
 
-        BeanUtils.copyProperties(user.get(),details);
-
-        details.setRoles(roleRepository.findAllByUserId(details.getId()));
+        BeanUtils.copyProperties(user,details);
+        details.setRoles(roleMapper.findAllByUserId(details.getId()));
 
 
         return details;
     }
 
     @Override
-    public Page<User> getAllUserByPage(int pageNum, int pageSize) {
-        return userRepository.findAll(PageRequest.of(pageNum-1,pageSize));
+    public DataGrid<User> getAllUserByPage(int pageNum, int pageSize) {
+
+        PageHelper.startPage(pageNum,pageSize);
+        List<User> users = userMapper.selectAll();
+        PageInfo<User> results = new PageInfo<>(users);
+        DataGrid<User> dataGrid = new DataGrid<>();
+        dataGrid.setTotal(results.getTotal());
+        dataGrid.setRow(results.getList());
+        return dataGrid;
     }
 
     @Override
     public List<UserRoleMapVo> getRolesMapByUserId(Integer userId) {
-        List<Role> roles = roleRepository.findAll();
+        //todo 数据库操作
+        List<Role> roles = roleMapper.selectAll();
 
         // 获取用户所拥有的roleID
 
-        List<RoleUserMap> roleMapsByUserId = roleUserMaprepository.findRoleUserMapsByUserId(userId);
+        RoleUserMap wrapper = new RoleUserMap();
+        wrapper.setUserId(userId);
+        List<RoleUserMap> roleMapsByUserId = roleUserMapMapper.select(wrapper);
 
         List<Integer> rolesId = roleMapsByUserId.stream().map(RoleUserMap::getRoleId).collect(Collectors.toList());
 
@@ -88,18 +108,19 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void saveRolesMapByUserId(List<Integer> roles, Integer userId) {
         // 删除掉所有的角色Id
-        roleUserMaprepository.deleteAllByUserId(userId);
+
+        RoleUserMap wrapper = new RoleUserMap();
+        wrapper.setUserId(userId);
+        roleUserMapMapper.delete(wrapper);
 
 
         // 新增
-        List<RoleUserMap> list = roles.stream().map(roleId->{
+        roles.forEach(roleId->{
             RoleUserMap roleUserMap = new RoleUserMap();
             roleUserMap.setUserId(userId);
             roleUserMap.setRoleId(roleId);
-            return roleUserMap;
-        }).collect(Collectors.toList());
-
-        roleUserMaprepository.saveAll(list);
+            roleUserMapMapper.insert(roleUserMap);
+        });
     }
 
 
