@@ -1,8 +1,8 @@
 package com.adroitwolf.service.impl;
 
 import com.adroitwolf.model.entity.Role;
-import com.adroitwolf.mapper.MenuRepository;
-import com.adroitwolf.mapper.RoleRepository;
+import com.adroitwolf.repository.MenuRepository;
+import com.adroitwolf.repository.RoleRepository;
 import com.adroitwolf.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

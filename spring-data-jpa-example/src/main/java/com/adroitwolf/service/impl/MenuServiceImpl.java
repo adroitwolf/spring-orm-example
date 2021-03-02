@@ -1,13 +1,13 @@
 package com.adroitwolf.service.impl;
 
-import com.adroitwolf.model.entity.Menu;
-import com.adroitwolf.model.entity.RoleMenuMap;
+import com.adroitwolf.model.entity.*;
 import com.adroitwolf.model.vo.MenuVo;
 import com.adroitwolf.model.vo.RoleMenuMapVo;
 import com.adroitwolf.model.vo.RoleMenuVo;
-import com.adroitwolf.mapper.MenuRepository;
-import com.adroitwolf.mapper.RoleMenuMapRepository;
+import com.adroitwolf.repository.MenuRepository;
+import com.adroitwolf.repository.RoleMenuMapRepository;
 import com.adroitwolf.service.MenuService;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,31 +31,62 @@ public class MenuServiceImpl implements MenuService {
     @Autowired
     RoleMenuMapRepository roleMenuMapRepository;
 
+
+    @Autowired
+    JPAQueryFactory jpaQueryFactory;
+
     @Override
     public List<MenuVo> getMenuByRoleId(Integer roleId) {
-        List<Menu> menus = menuRepository.findAllByRoleId(roleId);
+        QMenu  qMenu = QMenu.menu;
+        QRoleMenuMap roleMenuMap = QRoleMenuMap.roleMenuMap;
+
+        List<Menu> menus = jpaQueryFactory.select(qMenu)
+                .from(roleMenuMap)
+                .leftJoin(qMenu)
+                .on(roleMenuMap.roleId.eq(qMenu.id))
+                .where(roleMenuMap.roleId.eq(roleId))
+                .fetch();
+//        List<Menu> menus = menuRepository.findAllByRoleId(roleId);
         return adjustMenu(menus);
 
     }
 
     @Override
     public List<MenuVo> getMenuByUserId(Integer userId) {
-        List<Menu> menus = menuRepository.findAllByUserId(userId);
+        QMenu qMenu = QMenu.menu;
+        QRoleUserMap qRoleUserMap = QRoleUserMap.roleUserMap;
+        QRoleMenuMap qRoleMenuMap = QRoleMenuMap.roleMenuMap;
+        List<Menu> menus = jpaQueryFactory.select(qMenu)
+                .from(qRoleUserMap)
+                .leftJoin(qRoleMenuMap)
+                .on(qRoleMenuMap.roleId.eq(qRoleUserMap.roleId))
+                .leftJoin(qMenu)
+                .on(qMenu.id.eq(qRoleMenuMap.menuId))
+                .where(qRoleUserMap.userId.eq(userId))
+                .fetch();
+
+//        List<Menu> menus = menuRepository.findAllByUserId(userId);
 
         return adjustMenu(menus);
     }
 
     @Override
     public List<Menu> getAllMenus() {
-        return menuRepository.findAll();
+        return jpaQueryFactory.selectFrom(QMenu.menu).fetch();
+//        return menuRepository.findAll();
     }
 
     @Override
     public List<RoleMenuMapVo> getAllMenuMapByRoleId(Integer roleId) {
         //先获取所有菜单
-        List<Menu> menus = menuRepository.findAll();
+
+        List<Menu> menus = jpaQueryFactory.selectFrom(QMenu.menu).fetch();
         // 获取所有该角色应该有的菜单
-        List<Integer> menusId = roleMenuMapRepository.findRoleMenuMapsByRoleId(roleId).stream().map(RoleMenuMap::getMenuId).collect(Collectors.toList());
+        QRoleMenuMap qRoleMenuMap = QRoleMenuMap.roleMenuMap;
+
+        List<Integer> menusId = jpaQueryFactory.selectFrom(qRoleMenuMap)
+                .where(qRoleMenuMap.roleId.eq(roleId))
+                .fetch().stream().map(RoleMenuMap::getMenuId).collect(Collectors.toList());
 
 
         List<RoleMenuVo> lists = menus.stream().map(item->{

@@ -1,14 +1,13 @@
 package com.adroitwolf.service.impl;
 
-import com.adroitwolf.model.entity.Role;
-import com.adroitwolf.model.entity.RoleUserMap;
-import com.adroitwolf.model.entity.User;
+import com.adroitwolf.model.entity.*;
 import com.adroitwolf.model.vo.UserDetails;
 import com.adroitwolf.model.vo.UserRoleMapVo;
-import com.adroitwolf.mapper.RoleRepository;
-import com.adroitwolf.mapper.RoleUserMapRepository;
-import com.adroitwolf.mapper.UserRepository;
+import com.adroitwolf.repository.RoleRepository;
+import com.adroitwolf.repository.RoleUserMapRepository;
+import com.adroitwolf.repository.UserRepository;
 import com.adroitwolf.service.UserService;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,6 +38,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     RoleUserMapRepository roleUserMaprepository;
 
+
+    @Autowired
+    JPAQueryFactory jpaQueryFactory;
+
     @Override
     public UserDetails loginByUsername(String username, String password) {
         Optional<User> user = userRepository.findUserByUsername(username);
@@ -51,7 +54,19 @@ public class UserServiceImpl implements UserService {
 
         BeanUtils.copyProperties(user.get(),details);
 
-        details.setRoles(roleRepository.findAllByUserId(details.getId()));
+
+        QRole qRole = QRole.role;
+        QRoleUserMap qRoleUserMap = QRoleUserMap.roleUserMap;
+        List<Role> fetch = jpaQueryFactory.select(qRole)
+                .from(qRoleUserMap)
+                .leftJoin(qRole)
+                .on(qRoleUserMap.roleId.eq(qRole.id))
+                .where(qRoleUserMap.userId.eq(details.getId()))
+                .fetch();
+
+        details.setRoles(fetch);
+
+//        details.setRoles(roleRepository.findAllByUserId(details.getId()));
 
 
         return details;
