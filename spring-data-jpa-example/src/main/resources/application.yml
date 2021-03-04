@@ -4,5 +4,17 @@ spring:
     password: 123
     url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    driver-class-name: org.h2.Driver
+#    #    url: jdbc:h2:file:./db/test;AUTO_SERVER=TRUE       # 以本地文件存储数据的方式使用H2数据库
+#    # 以内存方式使用数据库（这里会创建一个数据库名为 test 的数据库实例）
+#    url: jdbc:h2:mem:test
+#    username: sa
+#    password: sa
+#    data: classpath:/sql/init.sql
+#  h2:
+#    console:
+#      path: /h2
+#      enabled: true
 server:
   port: 8081

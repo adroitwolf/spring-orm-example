@@ -1,6 +1,8 @@
 package com.adroitwolf.service;
 
 import com.adroitwolf.model.entity.Role;
+import com.querydsl.core.QueryResults;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +26,12 @@ public class RoleServiceTest {
 
     @Test
     public void getAllRoles(){
-        Page<Role> roles = roleService.getAllRoles(1, 5);
-        int totalPages = roles.getTotalPages();
-        long totalElements = roles.getTotalElements();
-        System.out.println("total:"+totalElements);
-        System.out.println("page:"+totalPages);
+        QueryResults<Role> roles = roleService.getAllRoles(1, 5);
+        long total = roles.getTotal();
+        List<Role> list = roles.getResults();
+        System.out.println("total:"+total);
+        System.out.println("contents:"+list);
         System.out.println("======================");
-        roles.get().forEach(System.out::println);
+        list.forEach(System.out::println);
     }
 }

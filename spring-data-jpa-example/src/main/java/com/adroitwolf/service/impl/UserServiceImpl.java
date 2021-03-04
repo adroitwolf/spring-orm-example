@@ -1,17 +1,12 @@
 package com.adroitwolf.service.impl;
 
-import com.adroitwolf.model.entity.Role;
-import com.adroitwolf.model.entity.RoleUserMap;
-import com.adroitwolf.model.entity.User;
+import com.adroitwolf.model.entity.*;
 import com.adroitwolf.model.vo.UserDetails;
-import com.adroitwolf.model.vo.UserRoleMapVo;
-import com.adroitwolf.mapper.RoleRepository;
-import com.adroitwolf.mapper.RoleUserMapRepository;
-import com.adroitwolf.mapper.UserRepository;
 import com.adroitwolf.service.UserService;
+import com.github.aqiu202.starters.jpa.query.dsl.JPAQueryExecutor;
+import com.querydsl.core.QueryResults;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,55 +26,54 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    RoleRepository roleRepository;
-
-    @Autowired
-    RoleUserMapRepository roleUserMaprepository;
+    JPAQueryExecutor jpaQueryExecutor;
 
     @Override
     public UserDetails loginByUsername(String username, String password) {
-        Optional<User> user = userRepository.findUserByUsername(username);
+        Optional<User> user = Optional.ofNullable(
+                jpaQueryExecutor.selectFrom(QUser.user).where(QUser.user.username.eq(username))
+                        .fetchOne());
 
         UserDetails details = new UserDetails();
-        if(!user.isPresent() || !user.get().getPassword().equals(password) ){ // 空则直接返回
+        if (!user.isPresent() || !user.get().getPassword().equals(password)) { // 空则直接返回
             return details;
         }
 
+        BeanUtils.copyProperties(user.get(), details);
 
-        BeanUtils.copyProperties(user.get(),details);
+        QRole qRole = QRole.role;
+        QRoleUserMap qRoleUserMap = QRoleUserMap.roleUserMap;
+        List<Role> fetch = jpaQueryExecutor.select(qRole)
+                .from(qRoleUserMap)
+                .leftJoin(qRole)
+                .on(qRoleUserMap.roleId.eq(qRole.id))
+                .where(qRoleUserMap.userId.eq(details.getId()))
+                .fetch();
 
-        details.setRoles(roleRepository.findAllByUserId(details.getId()));
-
+        details.setRoles(fetch);
 
         return details;
     }
 
     @Override
-    public Page<User> getAllUserByPage(int pageNum, int pageSize) {
-        return userRepository.findAll(PageRequest.of(pageNum-1,pageSize));
+    public QueryResults<User> getAllUserByPage(int pageNum, int pageSize) {
+        return jpaQueryExecutor.selectFrom(QUser.user)
+                .pageable(PageRequest.of(pageNum - 1, pageSize)).fetchResults();
     }
 
     @Override
-    public List<UserRoleMapVo> getRolesMapByUserId(Integer userId) {
-        List<Role> roles = roleRepository.findAll();
+    public List<Role> getRolesMapByUserId(Integer userId) {
+        List<Role> roles = jpaQueryExecutor.selectFrom(QRole.role).fetch();
 
-        // 获取用户所拥有的roleID
+        // 获取用户所拥有的roleID,
+        final QRoleUserMap qRoleUserMap = QRoleUserMap.roleUserMap;
 
-        List<RoleUserMap> roleMapsByUserId = roleUserMaprepository.findRoleUserMapsByUserId(userId);
+        List<Integer> rolesId = jpaQueryExecutor.select(qRoleUserMap.roleId).from(qRoleUserMap)
+                .where(qRoleUserMap.userId.eq(userId)).fetch(); // 查询数据库
 
-        List<Integer> rolesId = roleMapsByUserId.stream().map(RoleUserMap::getRoleId).collect(Collectors.toList());
-
-        //
-        return roles.stream().map(item->{
-            UserRoleMapVo roleMapVo = new UserRoleMapVo();
-
-            roleMapVo.setChoose(rolesId.contains(item.getId()));
-
-            BeanUtils.copyProperties(item,roleMapVo);
-            return roleMapVo;
+        return roles.stream().map(item -> {
+            item.setChoose(rolesId.contains(item.getId()));
+            return item;
         }).collect(Collectors.toList());
 
     }
@@ -88,18 +82,18 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void saveRolesMapByUserId(List<Integer> roles, Integer userId) {
         // 删除掉所有的角色Id
-        roleUserMaprepository.deleteAllByUserId(userId);
-
+        this.jpaQueryExecutor.delete(QRoleUserMap.roleUserMap)
+                .where(QRoleUserMap.roleUserMap.userId.eq(userId)).execute();
 
         // 新增
-        List<RoleUserMap> list = roles.stream().map(roleId->{
+        List<RoleUserMap> list = roles.stream().map(roleId -> {
             RoleUserMap roleUserMap = new RoleUserMap();
             roleUserMap.setUserId(userId);
             roleUserMap.setRoleId(roleId);
             return roleUserMap;
         }).collect(Collectors.toList());
 
-        roleUserMaprepository.saveAll(list);
+        jpaQueryExecutor.save(list);
     }
 
 

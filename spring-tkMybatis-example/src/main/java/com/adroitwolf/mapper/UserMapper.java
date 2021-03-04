@@ -11,7 +11,4 @@ import tk.mybatis.mapper.common.Mapper;
  * @createTime 2021年03月01日 08:56:00
  */
 public interface UserMapper extends Mapper<User> {
-
-
-
 }

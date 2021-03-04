@@ -3,11 +3,7 @@ package com.adroitwolf.service;
 
 import com.adroitwolf.model.dto.DataGrid;
 import com.adroitwolf.model.entity.User;
-import com.adroitwolf.model.vo.MenuVo;
 import com.adroitwolf.model.vo.UserDetails;
-import com.adroitwolf.model.vo.UserRoleMapVo;
-import com.adroitwolf.service.MenuService;
-import com.adroitwolf.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +53,7 @@ public class UserServiceTest {
 
     @Test
     public void getMenuByUserId(){
-        List<MenuVo> menus = menuService.getMenuByUserId(2);
-        menus.forEach(System.out::println);
+        menuService.getMenuByUserId(2).forEach(System.out::println);
     }
 
 
@@ -66,8 +61,7 @@ public class UserServiceTest {
 
     @Test
     public void getRolesMapByUserId(){
-        List<UserRoleMapVo> mapByUserId = userService.getRolesMapByUserId(1);
-        mapByUserId.forEach(System.out::println);
+        userService.getRolesMapByUserId(1).forEach(System.out::println);
     }
 
 

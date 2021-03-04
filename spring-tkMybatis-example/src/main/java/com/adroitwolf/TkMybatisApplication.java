@@ -1,9 +1,8 @@
 package com.adroitwolf;
 
-import com.github.aqiu202.starters.jpa.anno.EnableBaseJpaRepositories;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import tk.mybatis.spring.annotation.MapperScan;
 
 /**
  * @author adroitwolf
@@ -12,11 +11,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @Description 启动入口
  * @createTime 2021年03月01日 08:36:00
  */
+@MapperScan(basePackages = "com.adroitwolf.mapper")
 @SpringBootApplication
-@EnableBaseJpaRepositories
-public class SpringStartApplication {
+public class TkMybatisApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringStartApplication.class,args);
+        SpringApplication.run(TkMybatisApplication.class,args);
     }
 }

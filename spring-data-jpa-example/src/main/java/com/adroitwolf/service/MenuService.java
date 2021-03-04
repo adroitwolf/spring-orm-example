@@ -1,9 +1,6 @@
 package com.adroitwolf.service;
 
 import com.adroitwolf.model.entity.Menu;
-import com.adroitwolf.model.vo.MenuVo;
-import com.adroitwolf.model.vo.RoleMenuMapVo;
-import com.adroitwolf.model.vo.RoleMenuVo;
 
 import java.util.List;
 
@@ -20,7 +17,7 @@ public interface MenuService {
      * @param roleId
      * @return
      */
-    List<MenuVo> getMenuByRoleId(Integer roleId);
+    List<Menu> getMenuByRoleId(Integer roleId);
 
 
     /**
@@ -28,7 +25,7 @@ public interface MenuService {
      * @param userId
      * @return
      */
-    List<MenuVo> getMenuByUserId(Integer userId);
+    List<Menu> getMenuByUserId(Integer userId);
 
     /**
      * 获取到所有菜单
@@ -41,7 +38,7 @@ public interface MenuService {
      * @param roleId
      * @return
      */
-    List<RoleMenuMapVo> getAllMenuMapByRoleId(Integer roleId);
+    List<Menu> getAllMenuMapByRoleId(Integer roleId);
 
 
     /**

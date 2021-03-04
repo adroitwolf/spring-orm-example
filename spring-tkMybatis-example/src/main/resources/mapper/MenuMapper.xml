@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.adroitwolf.mapper.MenuMapper">
+
+    <sql id="Base_Column_List">
+        m.id,m.name,m.parent_id
+    </sql>
+    <select id="findAllByRoleId" parameterType="java.lang.Integer" resultType="com.adroitwolf.model.entity.Menu">
+        select
+            <include refid="Base_Column_List"></include>
+        from role_menu_map as rmm left join menu as m on m.id = rmm.menu_id where rmm.role_id = #{id}
+    </select>
+
+
+    <select id="findAllByUserId" parameterType="java.lang.Integer" resultType="com.adroitwolf.model.entity.Menu">
+        select
+        <include refid="Base_Column_List"></include>
+        from role_user_map as rum left join  role_menu_map as rmm  on rmm.role_id = rum.role_id  left join menu as m on m.id = rmm.menu_id where rum.user_id = #{id}
+    </select>
+
+</mapper>

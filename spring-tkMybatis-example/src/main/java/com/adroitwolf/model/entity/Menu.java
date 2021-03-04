@@ -3,6 +3,8 @@ package com.adroitwolf.model.entity;
 import lombok.Data;
 import tk.mybatis.mapper.annotation.ColumnType;
 
+import javax.persistence.Transient;
+
 /**
  * @author adroitwolf
  * @version 1.0.0
@@ -18,4 +20,7 @@ public class Menu {
 
     @ColumnType(column="parent_id")
     private Integer  parentId;
+
+    @Transient
+    private boolean isChoose;
 }

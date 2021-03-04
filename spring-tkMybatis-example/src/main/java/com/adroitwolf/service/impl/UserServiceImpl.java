@@ -6,11 +6,9 @@ import com.adroitwolf.mapper.RoleUserMapMapper;
 import com.adroitwolf.mapper.UserMapper;
 import com.adroitwolf.model.dto.DataGrid;
 import com.adroitwolf.model.entity.Role;
-import com.adroitwolf.model.entity.RoleMenuMap;
 import com.adroitwolf.model.entity.RoleUserMap;
 import com.adroitwolf.model.entity.User;
 import com.adroitwolf.model.vo.UserDetails;
-import com.adroitwolf.model.vo.UserRoleMapVo;
 import com.adroitwolf.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -45,13 +43,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loginByUsername(String username, String password) {
 
-
         User wrapper = new User();
         wrapper.setUsername(username);
         User user = userMapper.selectOne(wrapper);
 
         Assert.notNull(user,"未找到该用户");
-
 
         UserDetails details = new UserDetails();
 
@@ -59,19 +55,18 @@ public class UserServiceImpl implements UserService {
             return details;
         }
 
-
         BeanUtils.copyProperties(user,details);
         details.setRoles(roleMapper.findAllByUserId(details.getId()));
-
 
         return details;
     }
 
     @Override
     public DataGrid<User> getAllUserByPage(int pageNum, int pageSize) {
-
+        // 分页
         PageHelper.startPage(pageNum,pageSize);
         List<User> users = userMapper.selectAll();
+
         PageInfo<User> results = new PageInfo<>(users);
         DataGrid<User> dataGrid = new DataGrid<>();
         dataGrid.setTotal(results.getTotal());
@@ -80,26 +75,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserRoleMapVo> getRolesMapByUserId(Integer userId) {
-        //todo 数据库操作
+    public List<Role> getRolesMapByUserId(Integer userId) {
         List<Role> roles = roleMapper.selectAll();
 
         // 获取用户所拥有的roleID
 
         RoleUserMap wrapper = new RoleUserMap();
         wrapper.setUserId(userId);
-        List<RoleUserMap> roleMapsByUserId = roleUserMapMapper.select(wrapper);
+        List<Integer> rolesId = roleUserMapMapper.select(wrapper).stream().map(RoleUserMap::getRoleId).collect(Collectors.toList());
 
-        List<Integer> rolesId = roleMapsByUserId.stream().map(RoleUserMap::getRoleId).collect(Collectors.toList());
-
-        //
         return roles.stream().map(item->{
-            UserRoleMapVo roleMapVo = new UserRoleMapVo();
-
-            roleMapVo.setChoose(rolesId.contains(item.getId()));
-
-            BeanUtils.copyProperties(item,roleMapVo);
-            return roleMapVo;
+            item.setChoose(rolesId.contains(item.getId()));
+            return item;
         }).collect(Collectors.toList());
 
     }
@@ -112,7 +99,6 @@ public class UserServiceImpl implements UserService {
         RoleUserMap wrapper = new RoleUserMap();
         wrapper.setUserId(userId);
         roleUserMapMapper.delete(wrapper);
-
 
         // 新增
         roles.forEach(roleId->{

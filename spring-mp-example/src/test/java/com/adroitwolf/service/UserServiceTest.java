@@ -1,10 +1,8 @@
 package com.adroitwolf.service;
 
-import com.adroitwolf.model.dto.DataGrid;
 import com.adroitwolf.model.entity.User;
-import com.adroitwolf.model.vo.MenuVo;
 import com.adroitwolf.model.vo.UserDetails;
-import com.adroitwolf.model.vo.UserRoleMapVo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,17 +43,16 @@ public class UserServiceTest {
 
     @Test
     public void getAllUsers(){
-        DataGrid<User> users = userService.getAllUserByPage(1, 3);
+        IPage<User> users = userService.getAllUserByPage(1, 3);
 
-        users.getRow().forEach(System.out::println);
+        users.getRecords().forEach(System.out::println);
     }
 
 
 
     @Test
     public void getMenuByUserId(){
-        List<MenuVo> menus = menuService.getMenuByUserId(2);
-        menus.forEach(System.out::println);
+        menuService.getMenuByUserId(2).forEach(System.out::println);
     }
 
 
@@ -63,8 +60,7 @@ public class UserServiceTest {
 
     @Test
     public void getRolesMapByUserId(){
-        List<UserRoleMapVo> mapByUserId = userService.getRolesMapByUserId(1);
-        mapByUserId.forEach(System.out::println);
+        userService.getRolesMapByUserId(1).forEach(System.out::println);
     }
 
 

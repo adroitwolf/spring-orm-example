@@ -3,6 +3,8 @@ package com.adroitwolf.model.entity;
 import lombok.Data;
 import lombok.ToString;
 
+import javax.persistence.Transient;
+
 /**
  * @author adroitwolf
  * @version 1.0.0
@@ -19,4 +21,7 @@ public class Role {
     private String name;
 
     private String nameZh;
+
+    @Transient
+    private boolean isChoose;
 }

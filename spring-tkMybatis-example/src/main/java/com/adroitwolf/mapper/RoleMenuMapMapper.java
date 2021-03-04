@@ -12,6 +12,4 @@ import tk.mybatis.mapper.common.Mapper;
  * @createTime 2021年03月01日 14:21:00
  */
 public interface RoleMenuMapMapper extends Mapper<RoleMenuMap> {
-
-
 }

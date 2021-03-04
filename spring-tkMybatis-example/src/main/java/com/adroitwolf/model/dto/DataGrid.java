@@ -12,7 +12,7 @@ import java.util.List;
  * @createTime 2021年03月02日 08:08:00
  */
 @Data
-public class DataGrid<T> {
+public final class DataGrid<T> {
     private long total;
     private List<T> row;
 }

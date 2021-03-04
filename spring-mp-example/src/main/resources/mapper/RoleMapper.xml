@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.adroitwolf.mapper.RoleMapper">
+
+    <sql id="Base_Column_List">
+        r.id,r.name,r.name_zh
+    </sql>
+    
+    <select id="findAllByUserId" parameterType="java.lang.Integer" resultType="com.adroitwolf.model.entity.Role">
+        select
+            <include refid="Base_Column_List"></include>
+        from role_user_map as rum
+            left join role as r
+                on rum.role_id = r.id
+        where rum.user_id = #{id}
+    </select>
+</mapper>

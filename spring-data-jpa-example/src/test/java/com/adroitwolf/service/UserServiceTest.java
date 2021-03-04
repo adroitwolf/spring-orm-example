@@ -1,14 +1,12 @@
 package com.adroitwolf.service;
 
 import com.adroitwolf.model.entity.User;
-import com.adroitwolf.model.vo.MenuVo;
 import com.adroitwolf.model.vo.UserDetails;
-import com.adroitwolf.model.vo.UserRoleMapVo;
+import com.querydsl.core.QueryResults;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -36,42 +34,36 @@ public class UserServiceTest {
      * 登陆测试
      */
     @Test
-    public void loginTest(){
+    public void loginTest() {
         UserDetails details = userService.loginByUsername("wolf", "123");
         System.out.println(details.toString());
     }
 
 
-
     @Test
-    public void getAllUsers(){
-        Page<User> users = userService.getAllUserByPage(1, 3);
+    public void getAllUsers() {
+        QueryResults<User> users = userService.getAllUserByPage(1, 3);
 
-        users.forEach(System.out::println);
-    }
-
-
-
-    @Test
-    public void getMenuByUserId(){
-        List<MenuVo> menus = menuService.getMenuByUserId(2);
-        menus.stream().forEach(System.out::println);
-    }
-
-
-
-
-    @Test
-    public void getRolesMapByUserId(){
-        List<UserRoleMapVo> mapByUserId = userService.getRolesMapByUserId(1);
-        mapByUserId.stream().forEach(System.out::println);
+        users.getResults().forEach(System.out::println);
     }
 
 
     @Test
-    public void updateRolesByUserId(){
+    public void getMenuByUserId() {
+        menuService.getMenuByUserId(2).forEach(System.out::println);
+    }
+
+
+    @Test
+    public void getRolesMapByUserId() {
+        userService.getRolesMapByUserId(1).forEach(System.out::println);
+    }
+
+
+    @Test
+    public void updateRolesByUserId() {
         List<Integer> rolesId = new ArrayList<>();
         rolesId.add(2);
-        userService.saveRolesMapByUserId(rolesId,1);
+        userService.saveRolesMapByUserId(rolesId, 1);
     }
 }

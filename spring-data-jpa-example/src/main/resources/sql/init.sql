@@ -1,0 +1,10 @@
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (1, '会员管理', 0);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (2, '统计页面', 1);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (3, '会员列表', 1);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (4, '会员删除', 1);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (5, '订单管理', 0);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (6, '订单列表', 5);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (7, '订单搜索', 5);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (8, '城市联动', 0);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (9, '地区联动', 8);
+INSERT INTO `menu`(`id`, `name`, `parent_id`) VALUES (10, '城市地区关联', 8);

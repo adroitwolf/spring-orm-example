@@ -1,9 +1,6 @@
 package com.adroitwolf.service;
 
 
-import com.adroitwolf.model.vo.MenuVo;
-import com.adroitwolf.model.vo.RoleMenuMapVo;
-import com.adroitwolf.service.MenuService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +26,7 @@ public class MenuServiceTest {
 
     @Test
     public void getMenusByUserId(){
-        List<MenuVo> menus = menuService.getMenuByUserId(2);
-        menus.forEach(System.out::println);
+        menuService.getMenuByUserId(2).forEach(System.out::println);
     }
 
 
@@ -42,8 +38,6 @@ public class MenuServiceTest {
 
     @Test
     public void getAllMenusMap(){
-        List<RoleMenuMapVo> list = menuService.getAllMenuMapByRoleId(2);
-
-        list.forEach(System.out::println);
+        menuService.getAllMenuMapByRoleId(2).forEach(System.out::println);
     }
 }

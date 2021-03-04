@@ -27,6 +27,23 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.1.4.RELEASE</version>
             </plugin>
+
+            <plugin>
+                <groupId>com.mysema.maven</groupId>
+                <artifactId>apt-maven-plugin</artifactId>
+                <version>1.1.3</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>process</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>target/generated-sources/java</outputDirectory>
+                            <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -40,8 +57,36 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.noah.jpa</groupId>
+            <artifactId>spring-jpa-querydsl-spring-boot-starter</artifactId>
+            <version>1</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/lib/spring-jpa-querydsl-spring-boot-starter-1.0.3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.noah.jpa</groupId>
+            <artifactId>pageable-core</artifactId>
+            <version>1</version>
+            <scope>system</scope>
+            <systemPath>${pom.basedir}/lib/pageable-core-1.0.3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.github.aqiu202</groupId>
+            <artifactId>spring-aop-core</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
             <scope>runtime</scope>
         </dependency>
 
@@ -55,6 +100,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+
+
+        <!--QueryDSL支持-->
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-apt</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!--QueryDSL支持-->
+        <dependency>
+            <groupId>com.querydsl</groupId>
+            <artifactId>querydsl-jpa</artifactId>
         </dependency>
     </dependencies>
 

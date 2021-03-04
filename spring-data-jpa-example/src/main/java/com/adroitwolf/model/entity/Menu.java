@@ -25,4 +25,7 @@ public class Menu {
 
     @Column(name = "parent_id")
     private Integer  parentId;
+
+    @Transient
+    private boolean isChoose;
 }

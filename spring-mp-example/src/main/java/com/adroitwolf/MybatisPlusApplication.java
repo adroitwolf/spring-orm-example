@@ -1,9 +1,7 @@
 package com.adroitwolf;
 
-import com.github.aqiu202.starters.jpa.anno.EnableBaseJpaRepositories;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * @author adroitwolf
@@ -13,10 +11,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @createTime 2021年03月01日 08:36:00
  */
 @SpringBootApplication
-@EnableBaseJpaRepositories
-public class SpringStartApplication {
+public class MybatisPlusApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(SpringStartApplication.class,args);
+        SpringApplication.run(MybatisPlusApplication.class,args);
     }
 }

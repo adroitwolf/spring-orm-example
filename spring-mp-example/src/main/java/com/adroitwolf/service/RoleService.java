@@ -1,8 +1,7 @@
 package com.adroitwolf.service;
 
-import com.adroitwolf.model.dto.DataGrid;
 import com.adroitwolf.model.entity.Role;
-
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import java.util.List;
 
 /**
@@ -19,7 +18,7 @@ public interface RoleService {
      * @param pageSize
      * @return
      */
-    DataGrid<Role> getAllRoles(int pageNum, int pageSize);
+    IPage<Role> getAllRoles(int pageNum, int pageSize);
 
 
     /**

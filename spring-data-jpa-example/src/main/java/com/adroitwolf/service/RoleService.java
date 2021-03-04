@@ -1,9 +1,7 @@
 package com.adroitwolf.service;
 
 import com.adroitwolf.model.entity.Role;
-import com.adroitwolf.model.vo.RoleMenuVo;
-import com.adroitwolf.model.vo.UserRoleMapVo;
-import org.springframework.data.domain.Page;
+import com.querydsl.core.QueryResults;
 
 import java.util.List;
 
@@ -21,7 +19,7 @@ public interface RoleService {
      * @param pageSize
      * @return
      */
-    Page<Role> getAllRoles(int pageNum, int pageSize);
+    QueryResults<Role> getAllRoles(int pageNum, int pageSize);
 
 
     /**

@@ -1,7 +1,7 @@
 package com.adroitwolf.service;
 
-import com.adroitwolf.model.dto.DataGrid;
 import com.adroitwolf.model.entity.Role;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +24,11 @@ public class RoleServiceTest {
 
     @Test
     public void getAllRoles(){
-        DataGrid<Role> roles = roleService.getAllRoles(1, 5);
+        IPage<Role> roles = roleService.getAllRoles(1, 5);
 
         long totalElements = roles.getTotal();
         System.out.println("total:"+totalElements);
         System.out.println("======================");
-        roles.getRow().forEach(System.out::println);
+        roles.getRecords().forEach(System.out::println);
     }
 }

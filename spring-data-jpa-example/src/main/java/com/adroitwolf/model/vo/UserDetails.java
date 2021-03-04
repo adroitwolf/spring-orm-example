@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Data
 @ToString
-public class UserDetails {
+public final class UserDetails {
     private Integer id;
 
     private String username;

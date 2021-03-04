@@ -1,15 +1,14 @@
 package com.adroitwolf.service.impl;
 
+import com.adroitwolf.model.entity.QRole;
 import com.adroitwolf.model.entity.Role;
-import com.adroitwolf.mapper.MenuRepository;
-import com.adroitwolf.mapper.RoleRepository;
 import com.adroitwolf.service.RoleService;
+import com.github.aqiu202.starters.jpa.query.dsl.JPAQueryExecutor;
+import com.querydsl.core.QueryResults;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @author adroitwolf
@@ -20,25 +19,21 @@ import java.util.List;
  */
 @Service
 public class RoleServiceImpl implements RoleService {
-    @Autowired
-    RoleRepository roleRepository;
 
     @Autowired
-    MenuRepository menuRepository;
-
-
+    JPAQueryExecutor jpaQueryExecutor;
 
     @Override
-    public Page<Role> getAllRoles(int pageNum, int pageSize) {
+    public QueryResults<Role> getAllRoles(int pageNum, int pageSize) {
         //jpa 的分页是从0开始的
-        return roleRepository.findAll(PageRequest.of(pageNum-1,pageSize));
+        return this.jpaQueryExecutor.selectFrom(QRole.role)
+                .pageable(PageRequest.of(pageNum - 1, pageSize)).fetchResults();
     }
 
     @Override
     public List<Role> getAllRoles() {
-        return roleRepository.findAll();
+        return jpaQueryExecutor.selectFrom(QRole.role).fetch();
     }
-
 
 
 }

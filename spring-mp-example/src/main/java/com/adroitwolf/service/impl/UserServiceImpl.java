@@ -3,12 +3,10 @@ package com.adroitwolf.service.impl;
 import com.adroitwolf.mapper.RoleMapper;
 import com.adroitwolf.mapper.RoleUserMapMapper;
 import com.adroitwolf.mapper.UserMapper;
-import com.adroitwolf.model.dto.DataGrid;
 import com.adroitwolf.model.entity.Role;
 import com.adroitwolf.model.entity.RoleUserMap;
 import com.adroitwolf.model.entity.User;
 import com.adroitwolf.model.vo.UserDetails;
-import com.adroitwolf.model.vo.UserRoleMapVo;
 import com.adroitwolf.service.UserService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -19,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,7 +41,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loginByUsername(String username, String password) {
-        //todo 数据库操作
 
         QueryWrapper<User> wrapper = new QueryWrapper<>();
         wrapper.eq("username",username);
@@ -52,37 +48,28 @@ public class UserServiceImpl implements UserService {
 
         Assert.notNull(user,"未找到该用户");
 
-
         UserDetails details = new UserDetails();
 
         if(!user.getPassword().equals(password)){
             return details;
         }
 
-
         BeanUtils.copyProperties(user,details);
-        //todo 数据库操作
-        details.setRoles(roleMapper.findAllByUserId(details.getId()));
 
+        details.setRoles(roleMapper.findAllByUserId(details.getId()));
 
         return details;
     }
 
     @Override
-    public DataGrid<User> getAllUserByPage(int pageNum, int pageSize) {
-        //todo 数据库操作
+    public IPage<User> getAllUserByPage(int pageNum, int pageSize) {
         Page<User> page = new Page<>(pageNum, pageSize);
-        IPage<User> users = userMapper.selectPage(page,new QueryWrapper<>());
-        DataGrid<User> dataGrid = new DataGrid<>();
-        dataGrid.setTotal(users.getTotal());
-        dataGrid.setRow(users.getRecords());
-        return dataGrid;
+        return userMapper.selectPage(page,new QueryWrapper<>());
     }
 
     @Override
-    public List<UserRoleMapVo> getRolesMapByUserId(Integer userId) {
-        //todo 数据库操作
-        List<Role> roles = roleMapper.selectList(new QueryWrapper<>());
+    public List<Role> getRolesMapByUserId(Integer userId) {
+        List<Role> roles = roleMapper.selectList(null);
 
         // 获取用户所拥有的roleID
         QueryWrapper<RoleUserMap> mapQueryWrapper = new QueryWrapper<>();
@@ -91,14 +78,11 @@ public class UserServiceImpl implements UserService {
 
         List<Integer> rolesId = roleMapsByUserId.stream().map(RoleUserMap::getRoleId).collect(Collectors.toList());
 
-        //
         return roles.stream().map(item->{
-            UserRoleMapVo roleMapVo = new UserRoleMapVo();
 
-            roleMapVo.setChoose(rolesId.contains(item.getId()));
+            item.setChoose(rolesId.contains(item.getId()));
 
-            BeanUtils.copyProperties(item,roleMapVo);
-            return roleMapVo;
+            return item;
         }).collect(Collectors.toList());
 
     }
@@ -111,16 +95,13 @@ public class UserServiceImpl implements UserService {
         wrapper.eq("user_id",userId);
         roleUserMapMapper.delete(wrapper);
 
-
         // 新增
         roles.forEach(roleId->{
             RoleUserMap roleUserMap = new RoleUserMap();
             roleUserMap.setUserId(userId);
             roleUserMap.setRoleId(roleId);
             roleUserMapMapper.insert(roleUserMap);
-
         });
     }
-
 
 }

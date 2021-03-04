@@ -11,5 +11,4 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @createTime 2021年03月01日 13:10:00
  */
 public interface RoleUserMapMapper extends BaseMapper<RoleUserMap> {
-    void deleteAllByUserId(Integer userId);
 }

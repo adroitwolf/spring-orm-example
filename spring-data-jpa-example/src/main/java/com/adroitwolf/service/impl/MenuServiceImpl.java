@@ -1,18 +1,11 @@
 package com.adroitwolf.service.impl;
 
-import com.adroitwolf.model.entity.Menu;
-import com.adroitwolf.model.entity.RoleMenuMap;
-import com.adroitwolf.model.vo.MenuVo;
-import com.adroitwolf.model.vo.RoleMenuMapVo;
-import com.adroitwolf.model.vo.RoleMenuVo;
-import com.adroitwolf.mapper.MenuRepository;
-import com.adroitwolf.mapper.RoleMenuMapRepository;
+import com.adroitwolf.model.entity.*;
 import com.adroitwolf.service.MenuService;
-import org.springframework.beans.BeanUtils;
+import com.github.aqiu202.starters.jpa.query.dsl.JPAQueryExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -24,123 +17,72 @@ import java.util.stream.Collectors;
  */
 @Service
 public class MenuServiceImpl implements MenuService {
-    @Autowired
-    MenuRepository menuRepository;
-
 
     @Autowired
-    RoleMenuMapRepository roleMenuMapRepository;
+    JPAQueryExecutor jpaQueryExecutor;
 
     @Override
-    public List<MenuVo> getMenuByRoleId(Integer roleId) {
-        List<Menu> menus = menuRepository.findAllByRoleId(roleId);
-        return adjustMenu(menus);
+    public List<Menu> getMenuByRoleId(Integer roleId) {
+        final QMenu qMenu = QMenu.menu;
+        final QRoleMenuMap roleMenuMap = QRoleMenuMap.roleMenuMap;
 
+        return jpaQueryExecutor.select(qMenu)
+                .from(roleMenuMap)
+                .leftJoin(qMenu)
+                .on(roleMenuMap.roleId.eq(qMenu.id))
+                .where(roleMenuMap.roleId.eq(roleId))
+                .fetch();
     }
 
     @Override
-    public List<MenuVo> getMenuByUserId(Integer userId) {
-        List<Menu> menus = menuRepository.findAllByUserId(userId);
-
-        return adjustMenu(menus);
+    public List<Menu> getMenuByUserId(Integer userId) {
+        final QMenu qMenu = QMenu.menu;
+        final QRoleUserMap qRoleUserMap = QRoleUserMap.roleUserMap;
+        final QRoleMenuMap qRoleMenuMap = QRoleMenuMap.roleMenuMap;
+        return jpaQueryExecutor.select(qMenu)
+                .from(qRoleUserMap)
+                .leftJoin(qRoleMenuMap)
+                .on(qRoleMenuMap.roleId.eq(qRoleUserMap.roleId))
+                .leftJoin(qMenu)
+                .on(qMenu.id.eq(qRoleMenuMap.menuId))
+                .where(qRoleUserMap.userId.eq(userId))
+                .fetch();
     }
 
     @Override
     public List<Menu> getAllMenus() {
-        return menuRepository.findAll();
+        return this.jpaQueryExecutor.selectFrom(QMenu.menu).fetch();
     }
 
     @Override
-    public List<RoleMenuMapVo> getAllMenuMapByRoleId(Integer roleId) {
+    public List<Menu> getAllMenuMapByRoleId(Integer roleId) {
         //先获取所有菜单
-        List<Menu> menus = menuRepository.findAll();
+        List<Menu> menus = this.jpaQueryExecutor.selectFrom(QMenu.menu).fetch();
         // 获取所有该角色应该有的菜单
-        List<Integer> menusId = roleMenuMapRepository.findRoleMenuMapsByRoleId(roleId).stream().map(RoleMenuMap::getMenuId).collect(Collectors.toList());
+        final QRoleMenuMap rmm = QRoleMenuMap.roleMenuMap;
+        List<Integer> menusId = jpaQueryExecutor.select(rmm.menuId).from(rmm).where(rmm.roleId.eq(roleId))
+                .fetch();
 
-
-        List<RoleMenuVo> lists = menus.stream().map(item->{
-            RoleMenuVo roleMenuVo = new RoleMenuVo();
-            BeanUtils.copyProperties(item,roleMenuVo);
-            roleMenuVo.setChoose(menusId.contains(item.getId()));
-            return roleMenuVo;
+        return menus.stream().map(item -> {
+            //添加当前用户是否拥有的标识
+            item.setChoose(menusId.contains(item.getId()));
+            return item;
         }).collect(Collectors.toList());
 
-        return adjustMenuMap(lists);
     }
 
     @Override
-    public void saveMenusMapByRoleId(List<Integer> menus,Integer roleId) {
-        roleMenuMapRepository.deleteRoleMenuMapsByRoleId(roleId); //先删除
-
+    public void saveMenusMapByRoleId(List<Integer> menus, Integer roleId) {
+        final QRoleMenuMap rmm = QRoleMenuMap.roleMenuMap;
+        jpaQueryExecutor.delete(rmm).where(rmm.roleId.eq(roleId)).execute(); //先删除
 
         // 新增
-        List<RoleMenuMap> list = menus.stream().map(menuId->{
+        List<RoleMenuMap> list = menus.stream().map(menuId -> {
             RoleMenuMap roleMenuMap = new RoleMenuMap();
             roleMenuMap.setMenuId(menuId);
             roleMenuMap.setRoleId(roleId);
             return roleMenuMap;
         }).collect(Collectors.toList());
-            roleMenuMapRepository.saveAll(list);
-    }
-
-
-    private List<RoleMenuMapVo> adjustMenuMap(List<RoleMenuVo> menus){
-        if(menus.size() ==0){
-            return Collections.EMPTY_LIST;
-        }
-
-
-
-        HashMap<Integer,RoleMenuMapVo> map = new HashMap<>();
-        menus.stream().filter(s-> s.getParentId() == 0).forEach(item->{ //创建第一层菜单
-            RoleMenuMapVo menuVo = new RoleMenuMapVo();
-
-            BeanUtils.copyProperties(item,menuVo);
-            menuVo.setSubMenus(new ArrayList<>());
-            map.put(item.getId(),menuVo);
-        });
-
-
-
-        menus.stream().filter(s->s.getParentId() != 0).forEach(item->{ //获取二层菜单
-            RoleMenuMapVo parent = map.get(item.getParentId());
-            List<RoleMenuVo> subMenu = parent.getSubMenus();
-            subMenu.add(item);
-            parent.setSubMenus(subMenu);
-            map.replace(item.getParentId(),parent);
-        });
-
-        return  new ArrayList<>(map.values());
-    }
-
-
-    private List<MenuVo> adjustMenu(List<Menu> menus){
-        if(menus.size() ==0){
-            return Collections.EMPTY_LIST;
-        }
-
-
-
-        HashMap<Integer,MenuVo> map = new HashMap<>();
-        menus.stream().filter(s-> s.getParentId() == 0).forEach(item->{ //创建第一层菜单
-            MenuVo menuVo = new MenuVo();
-
-            BeanUtils.copyProperties(item,menuVo);
-            menuVo.setSubMenu(new ArrayList<>());
-            map.put(item.getId(),menuVo);
-        });
-
-
-
-        menus.stream().filter(s->s.getParentId() != 0) .forEach(item->{ //获取二层菜单
-            MenuVo parent = map.get(item.getParentId());
-            List<Menu> subMenu = parent.getSubMenu();
-            subMenu.add(item);
-            parent.setSubMenu(subMenu);
-            map.replace(item.getParentId(),parent);
-        });
-
-        return new ArrayList<>(map.values());
-
+        this.jpaQueryExecutor.save(list);
     }
 }

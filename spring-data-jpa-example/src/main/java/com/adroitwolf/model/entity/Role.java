@@ -28,4 +28,7 @@ public class Role {
 
     @Column(name = "name_zh")
     private String nameZh;
+
+    @Transient
+    private boolean isChoose; // 用户是否拥有该角色
 }

@@ -3,8 +3,6 @@ package com.adroitwolf.mapper;
 import com.adroitwolf.model.entity.RoleMenuMap;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import java.util.List;
-
 /**
  * @author adroitwolf
  * @version 1.0.0
@@ -13,9 +11,4 @@ import java.util.List;
  * @createTime 2021年03月01日 14:21:00
  */
 public interface RoleMenuMapMapper extends BaseMapper<RoleMenuMap> {
-
-    List<RoleMenuMap> findRoleMenuMapsByRoleId(Integer roleId);
-
-
-
 }

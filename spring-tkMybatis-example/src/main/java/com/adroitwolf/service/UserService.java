@@ -2,9 +2,9 @@ package com.adroitwolf.service;
 
 
 import com.adroitwolf.model.dto.DataGrid;
+import com.adroitwolf.model.entity.Role;
 import com.adroitwolf.model.entity.User;
 import com.adroitwolf.model.vo.UserDetails;
-import com.adroitwolf.model.vo.UserRoleMapVo;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public interface UserService {
      * @param userId
      * @return
      */
-    List<UserRoleMapVo> getRolesMapByUserId(Integer userId);
+    List<Role> getRolesMapByUserId(Integer userId);
 
 
     /**
